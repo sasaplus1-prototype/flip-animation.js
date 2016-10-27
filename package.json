@@ -9,5 +9,14 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/sasaplus1-prototype/flip-animation.js.git"
+  },
+  "scripts": {
+    "build": "npm run compile && npm run minify",
+    "compile": "npm run webpack -- --output-file flip-animation.js",
+    "minify": "npm run webpack -- --optimize-minimize --output-file flip-animation.min.js",
+    "webpack": "webpack --colors --display-error-details --progress"
+  },
+  "devDependencies": {
+    "webpack": "^1.13.3"
   }
 }
