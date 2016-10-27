@@ -16,6 +16,12 @@
     "minify": "npm run webpack -- --optimize-minimize --output-file flip-animation.min.js",
     "webpack": "webpack --colors --display-error-details --progress"
   },
+  "dependencies": {
+    "animation-frame": "^0.3.0",
+    "array-map": "0.0.0",
+    "load-image": "github:sasaplus1-prototype/load-image.js",
+    "type-check": "github:sasaplus1-prototype/type-check.js"
+  },
   "devDependencies": {
     "webpack": "^1.13.3"
   }
