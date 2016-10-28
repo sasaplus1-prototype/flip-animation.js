@@ -1,6 +1,6 @@
 {
   "name": "flip-animation",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "author": "sasa+1 <sasaplus1@gmail.com>",
   "description": "for flip animation",
   "main": "./index.js",
