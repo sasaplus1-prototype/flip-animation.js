@@ -1,0 +1,28 @@
+{
+  "name": "flip-animation",
+  "version": "0.1.0",
+  "author": "sasa+1 <sasaplus1@gmail.com>",
+  "description": "for flip animation",
+  "main": "./index.js",
+  "license": "MIT",
+  "readmeFilename": "README.md",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sasaplus1-prototype/flip-animation.js.git"
+  },
+  "scripts": {
+    "build": "npm run compile && npm run minify",
+    "compile": "npm run webpack -- --output-file flip-animation.js",
+    "minify": "npm run webpack -- --optimize-minimize --output-file flip-animation.min.js",
+    "webpack": "webpack --colors --display-error-details --progress"
+  },
+  "dependencies": {
+    "animation-frame": "^0.3.0",
+    "array-map": "0.0.0",
+    "load-image": "github:sasaplus1-prototype/load-image.js",
+    "type-check": "github:sasaplus1-prototype/type-check.js"
+  },
+  "devDependencies": {
+    "webpack": "^1.13.3"
+  }
+}
