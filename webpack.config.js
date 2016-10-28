@@ -27,6 +27,10 @@ module.exports = {
     ],
   },
 
+  node: {
+    Buffer: false,
+  },
+
   plugins: [
     new webpack.NoErrorsPlugin,
     new webpack.IgnorePlugin(/vertx/),
