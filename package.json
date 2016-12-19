@@ -1,7 +1,7 @@
 {
   "name": "flip-animation",
   "description": "for flip animation",
-  "version": "0.1.1",
+  "version": "1.0.0",
   "author": "sasa+1 <sasaplus1@gmail.com>",
   "dependencies": {
     "animation-frame": "^0.3.0",
