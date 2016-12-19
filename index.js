@@ -1,9 +1,15 @@
 'use strict';
 
-var AnimationFrame = require('animation-frame'),
-    map = require('array-map'),
-    loadImage = require('load-image'),
-    typeCheck = require('type-check');
+var AnimationFrame = require('animation-frame');
+
+var loadImage = require('load-image');
+
+var isArray = require('type-check/is-array'),
+    isFunction = require('type-check/is-function'),
+    isNumber = require('type-check/is-number');
+
+// NOTE: get global object by any environment
+var Promise = Function('return this')().Promise;
 
 /**
  * noop function
@@ -17,15 +23,20 @@ function noop() {}
  * @return {Promise}
  */
 function load(images) {
-  if (!typeCheck.isArray(images)) {
+  var promises = [],
+      i, len;
+
+  if (!isArray(images)) {
     images = [images];
   }
 
-  return Promise.all(
-    map(images, function(src) {
-      return loadImage(src);
-    })
-  );
+  for (i = 0, len = images.length; i < len; ++i) {
+    promises.push(
+      loadImage(images[i])
+    );
+  }
+
+  return Promise.all(promises);
 }
 
 /**
@@ -41,7 +52,7 @@ function load(images) {
 function start(options) {
   var progress, complete, context;
 
-  if (!typeCheck.isNumber(options.step) || !isFinite(options.step)) {
+  if (!isNumber(options.step) || !isFinite(options.step)) {
     throw new TypeError('step is must be a finite number');
   }
 
@@ -52,14 +63,13 @@ function start(options) {
     af: new AnimationFrame({
       frameRate: options.fps
     }),
-    id: null,
-    step: Math.floor(options.step),
+    complete: (isFunction(complete)) ? complete : noop,
     count: 1,
-    progress: (typeCheck.isFunction(progress)) ? progress : noop,
-    complete: (typeCheck.isFunction(complete)) ? complete : noop
+    progress: (isFunction(progress)) ? progress : noop,
+    step: Math.floor(options.step)
   };
 
-  if (typeCheck.isFunction(options.begin)) {
+  if (isFunction(options.begin)) {
     options.begin();
   }
 
@@ -95,6 +105,7 @@ function tick() {
 }
 
 module.exports = {
+  Promise: Promise,
   load: load,
   start: start
 };

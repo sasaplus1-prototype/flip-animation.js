@@ -1,5 +1,5 @@
 /*!
- * @license flip-animation.js Copyright(c) 2016 sasa+1
+ * @license flip-animation.js ver.1.0.0 Copyright(c) 2016 sasa+1
  * https://github.com/sasaplus1-prototype/flip-animation.js
  * Released under the MIT license.
  */
@@ -61,10 +61,16 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	'use strict';
 
-	var AnimationFrame = __webpack_require__(3),
-	    map = __webpack_require__(8),
-	    loadImage = __webpack_require__(9),
-	    typeCheck = __webpack_require__(11);
+	var AnimationFrame = __webpack_require__(4);
+
+	var loadImage = __webpack_require__(9);
+
+	var isArray = __webpack_require__(11),
+	    isFunction = __webpack_require__(3),
+	    isNumber = __webpack_require__(12);
+
+	// NOTE: get global object by any environment
+	var Promise = Function('return this')().Promise;
 
 	/**
 	 * noop function
@@ -78,15 +84,20 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * @return {Promise}
 	 */
 	function load(images) {
-	  if (!typeCheck.isArray(images)) {
+	  var promises = [],
+	      i, len;
+
+	  if (!isArray(images)) {
 	    images = [images];
 	  }
 
-	  return Promise.all(
-	    map(images, function(src) {
-	      return loadImage(src);
-	    })
-	  );
+	  for (i = 0, len = images.length; i < len; ++i) {
+	    promises.push(
+	      loadImage(images[i])
+	    );
+	  }
+
+	  return Promise.all(promises);
 	}
 
 	/**
@@ -102,7 +113,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	function start(options) {
 	  var progress, complete, context;
 
-	  if (!typeCheck.isNumber(options.step) || !isFinite(options.step)) {
+	  if (!isNumber(options.step) || !isFinite(options.step)) {
 	    throw new TypeError('step is must be a finite number');
 	  }
 
@@ -113,14 +124,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	    af: new AnimationFrame({
 	      frameRate: options.fps
 	    }),
-	    id: null,
-	    step: Math.floor(options.step),
+	    complete: (isFunction(complete)) ? complete : noop,
 	    count: 1,
-	    progress: (typeCheck.isFunction(progress)) ? progress : noop,
-	    complete: (typeCheck.isFunction(complete)) ? complete : noop
+	    progress: (isFunction(progress)) ? progress : noop,
+	    step: Math.floor(options.step)
 	  };
 
-	  if (typeCheck.isFunction(options.begin)) {
+	  if (isFunction(options.begin)) {
 	    options.begin();
 	  }
 
@@ -156,6 +166,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	}
 
 	module.exports = {
+	  Promise: Promise,
 	  load: load,
 	  start: start
 	};
@@ -199,6 +210,21 @@ return /******/ (function(modules) { // webpackBootstrap
 
 /***/ },
 /* 3 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	var toString = Object.prototype.toString;
+
+	module.exports = function isFunction(value) {
+	  return (
+	    typeof value === 'function' || toString.call(value) === '[object Function]'
+	  );
+	};
+
+
+/***/ },
+/* 4 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -209,18 +235,18 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * @license MIT
 	 */
 
-	module.exports = __webpack_require__(4)
+	module.exports = __webpack_require__(5)
 
 
 /***/ },
-/* 4 */
+/* 5 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict'
 
-	var nativeImpl = __webpack_require__(5)
+	var nativeImpl = __webpack_require__(6)
 	var now = __webpack_require__(1)
-	var performance = __webpack_require__(7)
+	var performance = __webpack_require__(8)
 	var root = __webpack_require__(2)
 
 	// Weird native implementation doesn't work if context is defined.
@@ -351,7 +377,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 5 */
+/* 6 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict'
@@ -391,7 +417,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 6 */
+/* 7 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict'
@@ -411,13 +437,13 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 7 */
+/* 8 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict'
 
 	var now = __webpack_require__(1)
-	var PerformanceTiming = __webpack_require__(6)
+	var PerformanceTiming = __webpack_require__(7)
 	var root = __webpack_require__(2)
 
 	/**
@@ -435,30 +461,21 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 8 */
-/***/ function(module, exports) {
-
-	module.exports = function (xs, f) {
-	    if (xs.map) return xs.map(f);
-	    var res = [];
-	    for (var i = 0; i < xs.length; i++) {
-	        var x = xs[i];
-	        if (hasOwn.call(xs, i)) res.push(f(x, i, xs));
-	    }
-	    return res;
-	};
-
-	var hasOwn = Object.prototype.hasOwnProperty;
-
-
-/***/ },
 /* 9 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
+	var isFunction = __webpack_require__(3);
+
 	var once = __webpack_require__(10);
 
+	/**
+	 * callback when image loaded
+	 *
+	 * @param {String} src
+	 * @param {Function} callback
+	 */
 	function load(src, callback) {
 	  var image = new Image();
 
@@ -474,49 +491,82 @@ return /******/ (function(modules) { // webpackBootstrap
 	  };
 	  image.src = src;
 
-	  if (image.naturalWidth) {
+	  if (image.naturalWidth || image.complete) {
 	    callback(null, image);
 	  }
 	}
 
-	module.exports = function(src, callback) {
-	  if (typeof callback === 'function') {
+	/**
+	 * load image
+	 *
+	 * @param {String} src
+	 * @param {Function} [callback]
+	 * @return {Promise}
+	 */
+	function loadImage(src, callback) {
+	  if (isFunction(callback)) {
 	    load(src, once(callback));
 	  } else {
-	    return new Promise(function(resolve, reject) {
+	    return new loadImage.Promise(function(resolve, reject) {
 	      load(src, function(err, image) {
 	        (err) ? reject(err) : resolve(image);
 	      });
 	    });
 	  }
-	};
+	}
+
+	// NOTE: get global object by any environment
+	loadImage.Promise = Function('return this')().Promise;
+
+	module.exports = loadImage;
 
 
 /***/ },
 /* 10 */
-/***/ function(module, exports) {
+/***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	module.exports = function(fn) {
+	var isFunction = __webpack_require__(3);
+
+	/**
+	 * return converted function
+	 *
+	 * @param {Function} fn
+	 * @throws {TypeError}
+	 * @return {Function}
+	 */
+	module.exports = function once(fn) {
 	  var count;
 
-	  if (typeof fn !== 'function') {
+	  if (!isFunction(fn)) {
 	    throw new TypeError('fn must be a Function');
 	  }
 
 	  count = 1;
 
 	  return function() {
-	    var result;
+	    var args, call;
 
-	    if (count-- > 0) {
-	      result = fn.apply(this, arguments);
+	    if (count-- <= 0) {
+	      return;
 	    }
 
-	    fn = void 0;
+	    args = arguments;
+	    call = 'call';
 
-	    return result;
+	    switch (args.length) {
+	      case 0:
+	        return fn[call](this);
+	      case 1:
+	        return fn[call](this, args[0]);
+	      case 2:
+	        return fn[call](this, args[0], args[1]);
+	      case 3:
+	        return fn[call](this, args[0], args[1], args[2]);
+	      default:
+	        return fn.apply(this, args);
+	    }
 	  };
 	};
 
@@ -529,145 +579,27 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var toString = Object.prototype.toString;
 
-	var call = 'call';
-
-	function isArguments(value) {
-	  return (toString[call](value) === '[object Arguments]');
-	}
-
-	var isArray = (Array.isArray) ?
+	module.exports = (Array.isArray) ?
 	  function isArray(value) {
 	    return Array.isArray(value);
 	  } :
 	  function isArray(value) {
-	    return (toString[call](value) === '[object Array]');
+	    return (toString.call(value) === '[object Array]');
 	  };
 
-	function isBoolean(value) {
+
+/***/ },
+/* 12 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	var toString = Object.prototype.toString;
+
+	module.exports = function isNumber(value) {
 	  return (
-	    typeof value === 'boolean' || toString[call](value) === '[object Boolean]'
+	    typeof value === 'number' || toString.call(value) === '[object Number]'
 	  );
-	}
-
-	var isBuffer = (typeof Buffer !== 'undefined' && Buffer.isBuffer) ?
-	  function isBuffer(value) {
-	    return Buffer.isBuffer(value);
-	  } :
-	  function isBuffer() {
-	    return false;
-	  };
-
-	function isDate(value) {
-	  return (toString[call](value) === '[object Date]');
-	}
-
-	function isError(value) {
-	  return (toString[call](value) === '[object Error]');
-	}
-
-	function isFunction(value) {
-	  return (
-	    typeof value === 'function' || toString[call](value) === '[object Function]'
-	  );
-	}
-
-	var isMap = (typeof Map !== 'undefined') ?
-	  function isMap(value) {
-	    return (toString[call](value) === '[object Map]');
-	  } :
-	  function isMap() {
-	    return false;
-	  };
-
-	function isNumber(value) {
-	  return (
-	    typeof value === 'number' || toString[call](value) === '[object Number]'
-	  );
-	}
-
-	function isObjectLike(value) {
-	  return (value !== null && typeof value === 'object');
-	}
-
-	function isObject(value) {
-	  return (isObjectLike(value) && toString[call](value) === '[object Object]');
-	}
-
-	function isPromiseLike(value) {
-	  return (
-	    isObjectLike(value) && isFunction(value.then) && isFunction(value['catch'])
-	  );
-	}
-
-	function isPromise(value) {
-	  return (isPromiseLike(value) && toString[call](value) === '[object Promise]');
-	}
-
-	function isRegExp(value) {
-	  return (toString[call](value) === '[object RegExp]');
-	}
-
-	var isSet = (typeof Set !== 'undefined') ?
-	  function isSet(value) {
-	    return (toString[call](value) === '[object Set]');
-	  } :
-	  function isSet() {
-	    return false;
-	  };
-
-	function isString(value) {
-	  return (
-	    typeof value === 'string' || toString[call](value) === '[object String]'
-	  );
-	}
-
-	var isSymbol = (typeof Symbol !== 'undefined' && typeof Symbol() === 'symbol') ?
-	  function isSymbol(value) {
-	    return (
-	      // NOTE: `typeof Object(Symbol())` returns 'object', but it is Symbol.
-	      typeof value === 'symbol' || toString[call](value) === '[object Symbol]'
-	    );
-	  } :
-	  function isSymbol() {
-	    return false;
-	  };
-
-	var isWeakMap = (typeof WeakMap !== 'undefined') ?
-	  function isWeakMap(value) {
-	    return (toString[call](value) === '[object WeakMap]');
-	  } :
-	  function isWeakMap() {
-	    return false;
-	  };
-
-	var isWeakSet = (typeof WeakSet !== 'undefined') ?
-	  function isWeakSet(value) {
-	    return (toString[call](value) === '[object WeakSet]');
-	  } :
-	  function isWeakSet() {
-	    return false;
-	  };
-
-	module.exports = {
-	  isArguments: isArguments,
-	  isArray: isArray,
-	  isBoolean: isBoolean,
-	  isBuffer: isBuffer,
-	  isDate: isDate,
-	  isError: isError,
-	  isFunction: isFunction,
-	  isMap: isMap,
-	  isNumber: isNumber,
-	  isObjectLike: isObjectLike,
-	  isObject: isObject,
-	  isPromiseLike: isPromiseLike,
-	  isPromise: isPromise,
-	  isRegExp: isRegExp,
-	  isSet: isSet,
-	  isString: isString,
-	  isSymbol: isSymbol,
-	  isWeakMap: isWeakMap,
-	  isWeakSet: isWeakSet
 	};
 
 

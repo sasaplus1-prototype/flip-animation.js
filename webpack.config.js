@@ -1,6 +1,14 @@
 'use strict';
 
+const path = require('path');
+
 const webpack = require('webpack');
+
+const {
+  name,
+  repository,
+  version,
+} = require('./package');
 
 module.exports = {
 
@@ -13,8 +21,21 @@ module.exports = {
   output: {
     path: __dirname,
     filename: '[name].js',
-    library: ['flipAnimation'],
+    library: [
+      name.replace(/-[a-z]/g,
+        (s) => s.slice(1).toUpperCase()
+      ),
+    ],
     libraryTarget: 'umd',
+  },
+
+  resolveLoader: {
+    root: path.join(__dirname, 'node_modules'),
+  },
+
+  node: {
+    Buffer: false,
+    process: false,
   },
 
   resolve: {
@@ -27,10 +48,6 @@ module.exports = {
     ],
   },
 
-  node: {
-    Buffer: false,
-  },
-
   plugins: [
     new webpack.NoErrorsPlugin,
     new webpack.IgnorePlugin(/vertx/),
@@ -38,8 +55,8 @@ module.exports = {
     new webpack.optimize.DedupePlugin,
     new webpack.optimize.AggressiveMergingPlugin,
     new webpack.BannerPlugin([
-      '@license flip-animation.js Copyright(c) 2016 sasa+1',
-      'https://github.com/sasaplus1-prototype/flip-animation.js',
+      `@license ${name}.js ver.${version} Copyright(c) 2016 sasa+1`,
+      repository.url.replace(/\.git$/i, ''),
       'Released under the MIT license.',
     ].join('\n'), {
       options: {
