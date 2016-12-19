@@ -26,7 +26,11 @@ via `<script>`
 
 ```js
 flipAnimation
-  .load(['image1.png', 'image2.png', 'image3.png')
+  .load([
+    'image1.png',
+    'image2.png',
+    'image3.png'
+  ])
   .then(function(images) {
     flipAnimation.start({
       step: 3,
