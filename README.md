@@ -47,6 +47,12 @@ flipAnimation
   });
 ```
 
+if you want to use Promise polyfill:
+
+```js
+flipAnimation.Promise = require('bluebird');
+```
+
 ## Functions
 
 ### load(images)
