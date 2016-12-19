@@ -5,7 +5,6 @@
   "author": "sasa+1 <sasaplus1@gmail.com>",
   "dependencies": {
     "animation-frame": "^0.3.0",
-    "array-map": "0.0.0",
     "load-image": "github:sasaplus1-prototype/load-image.js",
     "type-check": "github:sasaplus1-prototype/type-check.js"
   },
